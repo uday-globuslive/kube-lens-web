@@ -1,0 +1,92 @@
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: kube-lens-web
+  namespace: kube-lens-web
+  labels:
+    app: kube-lens-web
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRole
+metadata:
+  name: kube-lens-web
+  labels:
+    app: kube-lens-web
+rules:
+  # Core API resources
+  - apiGroups: [""]
+    resources:
+      - namespaces
+      - pods
+      - pods/log
+      - services
+      - configmaps
+      - secrets
+      - persistentvolumes
+      - persistentvolumeclaims
+      - events
+      - nodes
+      - endpoints
+      - serviceaccounts
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  
+  # Apps API resources
+  - apiGroups: ["apps"]
+    resources:
+      - deployments
+      - deployments/scale
+      - replicasets
+      - statefulsets
+      - daemonsets
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  
+  # Batch API resources
+  - apiGroups: ["batch"]
+    resources:
+      - jobs
+      - cronjobs
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  
+  # Networking API resources
+  - apiGroups: ["networking.k8s.io"]
+    resources:
+      - ingresses
+      - networkpolicies
+    verbs: ["get", "list", "watch", "create", "update", "patch", "delete"]
+  
+  # Storage API resources
+  - apiGroups: ["storage.k8s.io"]
+    resources:
+      - storageclasses
+    verbs: ["get", "list", "watch"]
+  
+  # RBAC API resources (read-only)
+  - apiGroups: ["rbac.authorization.k8s.io"]
+    resources:
+      - roles
+      - rolebindings
+      - clusterroles
+      - clusterrolebindings
+    verbs: ["get", "list", "watch"]
+  
+  # Metrics
+  - apiGroups: ["metrics.k8s.io"]
+    resources:
+      - nodes
+      - pods
+    verbs: ["get", "list", "watch"]
+---
+apiVersion: rbac.authorization.k8s.io/v1
+kind: ClusterRoleBinding
+metadata:
+  name: kube-lens-web
+  labels:
+    app: kube-lens-web
+roleRef:
+  apiGroup: rbac.authorization.k8s.io
+  kind: ClusterRole
+  name: kube-lens-web
+subjects:
+  - kind: ServiceAccount
+    name: kube-lens-web
+    namespace: kube-lens-web

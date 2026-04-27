@@ -1,0 +1,17 @@
+node_modules
+client/node_modules
+client/build
+.git
+.gitignore
+*.md
+.env
+.env.*
+.DS_Store
+Thumbs.db
+*.log
+npm-debug.log*
+.vscode
+.idea
+coverage
+.nyc_output
+dist

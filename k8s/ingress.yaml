@@ -1,0 +1,33 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: kube-lens-web
+  namespace: kube-lens-web
+  labels:
+    app: kube-lens-web
+  annotations:
+    # Nginx Ingress Controller annotations
+    nginx.ingress.kubernetes.io/proxy-body-size: "50m"
+    nginx.ingress.kubernetes.io/proxy-read-timeout: "3600"
+    nginx.ingress.kubernetes.io/proxy-send-timeout: "3600"
+    # WebSocket support
+    nginx.ingress.kubernetes.io/proxy-http-version: "1.1"
+    nginx.ingress.kubernetes.io/upstream-hash-by: "$request_uri"
+spec:
+  ingressClassName: nginx
+  rules:
+    - host: kube-lens.local
+      http:
+        paths:
+          - path: /
+            pathType: Prefix
+            backend:
+              service:
+                name: kube-lens-web
+                port:
+                  number: 80
+  # Uncomment for TLS
+  # tls:
+  #   - hosts:
+  #       - kube-lens.local
+  #     secretName: kube-lens-tls

@@ -1,0 +1,57 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kube-lens-web
+  namespace: kube-lens-web
+  labels:
+    app: kube-lens-web
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kube-lens-web
+  template:
+    metadata:
+      labels:
+        app: kube-lens-web
+    spec:
+      serviceAccountName: kube-lens-web
+      containers:
+        - name: kube-lens-web
+          image: kube-lens-web:latest
+          imagePullPolicy: IfNotPresent
+          ports:
+            - name: http
+              containerPort: 3001
+              protocol: TCP
+          env:
+            - name: NODE_ENV
+              value: "production"
+            - name: PORT
+              value: "3001"
+          resources:
+            requests:
+              memory: "128Mi"
+              cpu: "100m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          livenessProbe:
+            httpGet:
+              path: /api/health
+              port: http
+            initialDelaySeconds: 10
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /api/health
+              port: http
+            initialDelaySeconds: 5
+            periodSeconds: 5
+          securityContext:
+            runAsNonRoot: true
+            runAsUser: 1000
+            readOnlyRootFilesystem: false
+            allowPrivilegeEscalation: false
+      securityContext:
+        fsGroup: 1000
