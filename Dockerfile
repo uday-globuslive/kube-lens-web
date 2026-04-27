@@ -20,10 +20,6 @@ FROM node:20-alpine AS production
 
 WORKDIR /app
 
-# Create non-root user
-RUN addgroup -g 1000 nodeapp && \
-    adduser -u 1000 -G nodeapp -s /bin/sh -D nodeapp
-
 # Copy server package files
 COPY package*.json ./
 
@@ -37,11 +33,11 @@ COPY server/ ./server/
 # Copy built React app from frontend builder
 COPY --from=frontend-builder /app/client/build ./client/build
 
-# Set ownership
-RUN chown -R nodeapp:nodeapp /app
+# Set ownership to built-in node user (uid 1000)
+RUN chown -R node:node /app
 
-# Switch to non-root user
-USER nodeapp
+# Switch to non-root user (node user already exists in base image)
+USER node
 
 # Set environment
 ENV NODE_ENV=production
@@ -52,7 +48,7 @@ EXPOSE 3001
 
 # Health check
 HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
-    CMD wget --no-verbose --tries=1 --spider http://localhost:3001/api/health || exit 1
+    CMD node -e "require('http').get('http://localhost:3001/api/health', (r) => process.exit(r.statusCode === 200 ? 0 : 1)).on('error', () => process.exit(1))"
 
 # Start the server
 CMD ["node", "server/index.js"]
