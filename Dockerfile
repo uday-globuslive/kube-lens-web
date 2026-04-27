@@ -7,7 +7,7 @@ WORKDIR /app/client
 COPY client/package*.json ./
 
 # Install client dependencies (including devDependencies for build)
-RUN npm ci
+RUN npm install
 
 # Copy client source
 COPY client/ ./
@@ -24,7 +24,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install production dependencies only
-RUN npm ci --omit=dev && \
+RUN npm install --omit=dev && \
     npm cache clean --force
 
 # Copy server source
