@@ -5,12 +5,14 @@ const morgan = require('morgan');
 const path = require('path');
 const expressWs = require('express-ws');
 
+const app = express();
+expressWs(app);
+
+// Routes must be imported AFTER expressWs initializes the app
+// so that express.Router() has the .ws() method available
 const kubernetesRoutes = require('./routes/kubernetes');
 const metricsRoutes = require('./routes/metrics');
 const logsRoutes = require('./routes/logs');
-
-const app = express();
-expressWs(app);
 
 const PORT = process.env.PORT || 3001;
 
